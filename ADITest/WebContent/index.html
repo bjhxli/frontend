@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Nasa's Images</title>
+
+<style type="text/css">
+.divcss_left{ position:fixed;
+left: 20px;
+top: 100px;
+width:330px;
+line-height:30px;
+background: #FC6;
+border:1px solid #F90; } 
+
+.divcss_large{ position:fixed;
+left: 200px;
+top: 200px;
+width:600px;
+} 
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-beta.17/angular.min.js"></script>
+<script>
+var mainApp = angular.module("mainApp", []);
+
+mainApp.controller('PhotoController', function($scope, $http) {
+   $scope.pageNumber = 1;
+   var url="http://localhost:9080/ADITest/rest/search/"+$scope.pageNumber;
+   $http.get(url).success( function(response) {
+      $scope.photos = response;
+   });
+   
+   $scope.showBig = function(largeUrl){
+         alert("showBig"+largeUrl);
+         document.getElementById("largeImage").style.display="";
+   };
+   
+   $scope.hideBig = function(largeUrl){
+         alert("hideBig"+largeUrl);
+         document.getElementById("largeImage").style.display="none";
+   };
+   
+   $scope.logMouseEvent = function() {
+        switch (event.type) {
+          case "mouseenter":
+            console.log("Hey Mouse Entered");
+            break;
+
+          case "mouseleave":
+            console.log("Mouse Gone");
+            break;
+
+          default:
+            console.log(event.type);
+            break;
+        }
+    };
+});
+
+mainApp.controller('PageController', function($scope, $http) {
+   var pageNumber = 1
+   $scope.reset = function(){
+         //$scope.pageNumber = 1;
+         alert(pageNumber);
+         var url="http://localhost:9080/ADITest/rest/search/"+pageNumber;
+         $http.get(url).success( function(response) {
+             $scope.photos = response;
+         });
+   };
+   
+   $scope.next = function(){
+         pageNumber = pageNumber+1;
+         alert(pageNumber);
+         var url="http://localhost:9080/ADITest/rest/search/"+pageNumber;
+         alert(url);
+         $http.get(url).success( function(response) {
+             alert("abc");
+             var newPhotos = response;
+             alert(newPhotos);
+             $scope.photos = newPhotos;
+             alert($scope.photos[2].title);
+             $("#test").show();
+         });
+   };
+   
+   $scope.pre = function(){
+         pageNumber = pageNumber-1;
+         alert("This is the latest images!");
+         if(pageNumber==0)
+            return false;
+         var url="http://localhost:9080/ADITest/rest/search/"+pageNumber;
+         alert(url);
+         $http.get(url).success( function(response) {
+             var newPhotos = response;
+             alert(newPhotos);
+             $scope.photos = newPhotos;
+             alert($scope.photos[2].title);
+             $("#test").show();
+         });
+   };
+});
+
+
+</script>
+</head>
+
+<body ng-app="mainApp">
+<table width="100%" border="0">
+	<tr>
+		<td>
+			<table width="100%" border="0">
+				<tr bgcolor="#000000">
+					<td align="left" width="60%">
+						<span style="font-size:20px;" color="#00FF00">Nasa's Images by Page</span>
+					</td>
+					<td align="right" width="40%">
+						<input type="text" width="100%" /><input type="button" value="Search"/>
+					</td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<table width="100%" border="0" >
+				<tr>
+					<td align="left" width="30%" bgcolor="#00FF00">
+						<div ng-controller="PageController" class="divcss_left">
+							<table width="100%" border="0">
+								<tr>
+									<td bgcolor="#00FF00">
+										<a ng-click="reset()"><span style="font-size:20px;">Latest</span></a>
+									</td>
+								</tr>
+								<tr>
+									<td bgcolor="#00FF00">
+										<a ng-click="next()"><span style="font-size:20px;">Next Page</span></a>
+									</td>
+								</tr>
+								<tr>
+									<td bgcolor="#00FF00">
+										<a ng-click="pre()"><span style="font-size:20px;">Previous Page</span></a>
+									</td>
+								</tr>
+							</table>
+						</div>
+					</td>
+					<td align="left" width="70%" bgcolor="#00FF99">
+						<div ng-controller="PhotoController" id="test">
+							<table width="100%" border="0" ng-repeat="photo in photos track by photo.id">
+								<tr>
+									<td align="left" width="40%" bgcolor="#00FF66">
+										<img ng-src="{{ photo.smallUrl }}"  ng-mouseenter="alert(cc)" ng-mouseleave="logMouseEvent()">
+									</td>
+									<td align="left" width="60%" bgcolor="#0099FF">
+										<span style="font-size:14px;">{{ photo.title }}</span>
+									</td>
+								</tr>
+							</table>
+							<div class="divcss_large" ng-show="false" id="largeImage">
+								test <img src="" >
+							</div>
+						</div>
+					</td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+</table>
+
+</body>
+</html>
